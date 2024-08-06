@@ -296,28 +296,6 @@ function UploadConvert() {
                             </Form.Group>
                         )}
 
-                        {minDate && maxDate && (
-                            <Form.Group className="mb-3">
-                                <Form.Label>Select Date Range</Form.Label>
-                                <div className="d-flex">
-                                    <Form.Control
-                                        type="date"
-                                        value={startDate}
-                                        min={minDate.toISOString().split('T')[0]}
-                                        max={maxDate.toISOString().split('T')[0]}
-                                        onChange={handleStartDateChange}
-                                        className="me-2"
-                                    />
-                                    <Form.Control
-                                        type="date"
-                                        value={endDate}
-                                        min={minDate.toISOString().split('T')[0]}
-                                        max={maxDate.toISOString().split('T')[0]}
-                                        onChange={handleEndDateChange}
-                                    />
-                                </div>
-                            </Form.Group>
-                        )}
 
                         <Button variant="primary" type="submit" className="w-100" disabled={uploading}>
                             {uploading ? 'Uploading...' : 'Convert'}
@@ -373,44 +351,61 @@ function UploadConvert() {
             </div>
 
             {showTable && (
-                <div className="mt-5 mb-3 flex flex-col items-center">
-                    <div className="overflow-x-auto rounded-lg border border-gray-300" style={{ maxHeight: '400px', overflowY: 'auto' }}>
-                        <table className="table table-striped table-bordered table-hover">
-                            <thead>
-                                <tr className="table-primary">
-                                    <th>Timestamp</th>
-                                    <th>Forward Flow (Litres)</th>
-                                    <th>Water Consumption (Litres)</th>
-                                    <th>Port</th>
-                                    <th>Battery Level</th>
-                                    <th>Daily Consumption (Litres)</th>
+    <div className="mt-5 mb-3 flex flex-col items-center">
+        <div className="overflow-x-auto rounded-lg border border-gray-300" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            <table className="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr className="table-primary">
+                        <th>Timestamp</th>
+                        <th>Forward Flow (Litres)</th>
+                        <th>Water Consumption (Litres)</th>
+                        <th>Port</th>
+                        <th>Battery Level</th>
+                        <th>Daily Consumption (Litres)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredTableData().reduce((acc, current) => {
+                        const dailyConsumptionValue = dailyConsumption.find(d => new Date(d.date).toLocaleDateString() === current.time.toLocaleDateString())?.dailyConsumption || 0;
+                        const existingRow = acc.find(row => row.dailyConsumption === dailyConsumptionValue);
+                        if (existingRow) {
+                            existingRow.rows.push(current);
+                        } else {
+                            acc.push({
+                                dailyConsumption: dailyConsumptionValue,
+                                rows: [current]
+                            });
+                        }
+                        return acc;
+                    }, []).map((row, index) => (
+                        <React.Fragment key={index}>
+                            {row.rows.map((subRow, subIndex) => (
+                                <tr key={subIndex}>
+                                <td>{subRow.time.toLocaleString()}</td>
+                                <td>{subRow.forwardFlow}</td>
+                                <td>{subRow.waterConsumption}</td>
+                                <td>{subRow.port}</td>
+                                <td>{subRow.batteryLevel}V</td>
+                                    {/* Daily Consumption merged cell */}
+                                    {subIndex === 0 && (
+                                        <td rowSpan={row.rows.length}>{row.dailyConsumption}</td>
+                                    )}
+                                    
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {filteredTableData().map((row, index) => {
-                                    const dailyConsumptionValue = dailyConsumption.find(d => new Date(d.date).toLocaleDateString() === row.time.toLocaleDateString())?.dailyConsumption || 0;
-                                    return (
-                                        <tr key={index}>
-                                            <td>{row.time.toLocaleString()}</td> {/* Display date and time */}
-                                            <td>{row.forwardFlow}</td>
-                                            <td>{row.waterConsumption}</td>
-                                            <td>{row.port}</td>
-                                            <td>{row.batteryLevel}V</td>
-                                            <td>{dailyConsumptionValue}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                    <Button variant="secondary" onClick={downloadCSV} className="mt-3">
-                        Download Table Data
-                    </Button>
-                </div>
-            )}
+                            ))}
+                        </React.Fragment>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+        <Button variant="secondary" onClick={downloadCSV} className="mt-3">
+            Download Table Data
+        </Button>
+    </div>
+)}
+
         </>
     );
 }
 
 export default UploadConvert;
-
