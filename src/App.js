@@ -1,5 +1,4 @@
 import './App.css';
-import Header from './Header';
 import EnterPassword from './EnterPassword';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import UploadConvert from './UploadConvert';

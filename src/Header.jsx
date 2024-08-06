@@ -19,8 +19,8 @@ const Header = () => {
           href="#"
           className="ml-4 text-white underline"
           onClick={(e) => {
-            e.preventDefault(); // Prevent default anchor behavior
-            handleLogout(); // Call the handleLogout function
+            e.preventDefault(); 
+            handleLogout(); 
           }}
         >
           Logout
