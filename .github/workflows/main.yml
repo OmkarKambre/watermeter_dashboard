@@ -3,7 +3,7 @@ name: Build, Check, Deploy, and Start
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
