@@ -16,6 +16,7 @@ const Header = () => {
       <div className="flex items-center">
         <span>Welcome, admin</span>
         <a
+          href="https://inmac-digital-watermeter.netlify.app/"
           className="ml-4 text-white underline"
           onClick={(e) => {
             e.preventDefault(); 
