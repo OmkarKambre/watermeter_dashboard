@@ -214,6 +214,7 @@ function UploadConvert() {
     const calculateDailyConsumption = (port) => {
         const data = tableData[port]?.table.filter(row => row.time >= new Date(startDate) && row.time <= new Date(endDate)) || [];
         const consumptionSummary = [];
+    
         if (data.length === 0) return consumptionSummary;
     
         let dailySum = 0;
@@ -225,19 +226,18 @@ function UploadConvert() {
             if (rowDate >= currentDate && rowDate < new Date(currentDate.getTime() + 24 * 60 * 60 * 1000)) {
                 dailySum += row.waterConsumption;
             } else {
-                consumptionSummary.push({ date: currentDate.toLocaleDateString(), dailyConsumption: dailySum+row.waterConsumption });
-                console.log(row.waterConsumption)
+                consumptionSummary.push({ date: currentDate.toLocaleDateString(), dailyConsumption: dailySum });
                 currentDate = new Date(rowDate.setHours(0, 0, 0, 0)); // Move to the new day
-                dailySum = 0; // Start new day's sum
+                dailySum = row.waterConsumption; // Start new day's sum with the current row's value
             }
         });
     
         // Add the last day's summary
-                // Add the last day's summary
         consumptionSummary.push({ date: currentDate.toLocaleDateString(), dailyConsumption: dailySum });
-
+    
         return consumptionSummary;
     };
+    
 
     // Filter table data based on the selected date range
     const filteredTableData = () => {
@@ -351,37 +351,37 @@ function UploadConvert() {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredTableData().reduce((acc, current) => {
-                        const dailyConsumptionValue = dailyConsumption.find(d => new Date(d.date).toLocaleDateString() === current.time.toLocaleDateString())?.dailyConsumption || 0;
-                        const existingRow = acc.find(row => row.dailyConsumption === dailyConsumptionValue);
-                        if (existingRow) {
-                            existingRow.rows.push(current);
-                        } else {
-                            acc.push({
-                                dailyConsumption: dailyConsumptionValue,
-                                rows: [current]
-                            });
-                        }
-                        return acc;
-                    }, []).map((row, index) => (
-                        <React.Fragment key={index}>
-                            {row.rows.map((subRow, subIndex) => (
-                                <tr key={subIndex}>
-                                <td>{subRow.time.toLocaleString()}</td>
-                                <td>{subRow.forwardFlow}</td>
-                                <td>{subRow.waterConsumption}</td>
-                                <td>{subRow.port}</td>
-                                <td>{subRow.batteryLevel}V</td>
-                                    {/* Daily Consumption merged cell */}
-                                    {subIndex === 0 && (
-                                        <td rowSpan={row.rows.length}>{row.dailyConsumption}</td>
-                                    )}
-                                    
-                                </tr>
-                            ))}
-                        </React.Fragment>
-                    ))}
-                </tbody>
+    {filteredTableData().reduce((acc, current) => {
+        const dailyConsumptionValue = dailyConsumption.find(d => new Date(d.date).toLocaleDateString() === current.time.toLocaleDateString())?.dailyConsumption || 0;
+        const existingRow = acc.find(row => row.dailyConsumption === dailyConsumptionValue);
+        if (existingRow) {
+            existingRow.rows.push(current);
+        } else {
+            acc.push({
+                dailyConsumption: dailyConsumptionValue,
+                rows: [current]
+            });
+        }
+        return acc;
+    }, []).map((row, index) => (
+        <React.Fragment key={index}>
+            {row.rows.map((subRow, subIndex) => (
+                <tr key={subIndex}>
+                    <td>{subRow.time.toLocaleString()}</td>
+                    <td>{subRow.forwardFlow}</td>
+                    <td>{subRow.waterConsumption}</td>
+                    <td>{subRow.port}</td>
+                    <td>{subRow.batteryLevel}V</td>
+                    {/* Daily Consumption merged cell */}
+                    {subIndex === 0 && (
+                        <td rowSpan={row.rows.length}>{row.dailyConsumption}</td>
+                    )}
+                </tr>
+            ))}
+        </React.Fragment>
+    ))}
+</tbody>
+
             </table>
         </div>
         <Button variant="secondary" onClick={downloadCSV} className="mt-3">
