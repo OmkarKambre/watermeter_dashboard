@@ -11,15 +11,12 @@ function UploadConvert() {
     const [fileError, setFileError] = useState("");
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploading, setUploading] = useState(false);
-    const [fileUploaded, setFileUploaded] = useState(false);
     const [waterConsumptionData, setWaterConsumptionData] = useState(null);
     const [forwardFlowData, setForwardFlowData] = useState(null);
     const [tableData, setTableData] = useState({});
     const [showTable, setShowTable] = useState(false);
     const [selectedPort, setSelectedPort] = useState(1);
     const [availablePorts, setAvailablePorts] = useState([]);
-    const [minDate, setMinDate] = useState(null);
-    const [maxDate, setMaxDate] = useState(null);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
 
@@ -30,15 +27,12 @@ function UploadConvert() {
             if (!allowedTypes.includes(file.type)) {
                 setFileError("Please upload a valid CSV or XLSX file.");
                 setSelectedFile(null);
-                setFileUploaded(false);
             } else {
                 setFileError("");
                 setSelectedFile(file);
-                setFileUploaded(false);
             }
         } else {
             setFileError("Please select a file to upload.");
-            setFileUploaded(false);
         }
     };
 
@@ -110,8 +104,6 @@ function UploadConvert() {
 
             const minDate = new Date(Math.min(...allDates));
             const maxDate = new Date(Math.max(...allDates));
-            setMinDate(minDate);
-            setMaxDate(maxDate);
             setStartDate(minDate.toISOString().split('T')[0]);
             setEndDate(maxDate.toISOString().split('T')[0]);
 
@@ -119,7 +111,6 @@ function UploadConvert() {
             setTableData(portData);
             setShowTable(true);
             setUploading(false);
-            setFileUploaded(true);
             setFileError("");
             updateGraphData(portData, selectedPort);
         };
@@ -192,13 +183,6 @@ function UploadConvert() {
         updateGraphData(tableData, port);
     };
 
-    const handleStartDateChange = (event) => {
-        setStartDate(event.target.value);
-    };
-
-    const handleEndDateChange = (event) => {
-        setEndDate(event.target.value);
-    };
 
     const downloadCSV = () => {
         const csvRows = [];
@@ -241,6 +225,7 @@ function UploadConvert() {
                 dailySum += row.waterConsumption;
             } else {
                 consumptionSummary.push({ date: currentDate.toLocaleDateString(), dailyConsumption: dailySum+row.waterConsumption });
+                console.log(row.waterConsumption)
                 currentDate = new Date(rowDate.setHours(0, 0, 0, 0)); // Move to the new day
                 dailySum = 0; // Start new day's sum
             }
