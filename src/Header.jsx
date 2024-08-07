@@ -16,7 +16,6 @@ const Header = () => {
       <div className="flex items-center">
         <span>Welcome, admin</span>
         <a
-          href="#"
           className="ml-4 text-white underline"
           onClick={(e) => {
             e.preventDefault(); 
