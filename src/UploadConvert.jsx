@@ -240,9 +240,10 @@ function UploadConvert() {
             if (rowDate >= currentDate && rowDate < new Date(currentDate.getTime() + 24 * 60 * 60 * 1000)) {
                 dailySum += row.waterConsumption;
             } else {
-                consumptionSummary.push({ date: currentDate.toLocaleDateString(), dailyConsumption: dailySum });
+                consumptionSummary.push({ date: currentDate.toLocaleDateString(), dailyConsumption: dailySum+row.waterConsumption });
+                console.log(row.waterConsumption)
                 currentDate = new Date(rowDate.setHours(0, 0, 0, 0)); // Move to the new day
-                dailySum = row.waterConsumption; // Start new day's sum
+                dailySum = 0; // Start new day's sum
             }
         });
     
