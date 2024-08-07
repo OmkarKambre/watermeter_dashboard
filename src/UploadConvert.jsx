@@ -42,9 +42,9 @@ function UploadConvert() {
             setFileError("Please select a file to upload.");
             return;
         }
-
+    
         setUploading(true);
-
+    
         const reader = new FileReader();
         reader.onload = (e) => {
             const data = new Uint8Array(e.target.result);
@@ -52,21 +52,21 @@ function UploadConvert() {
             const sheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[sheetName];
             const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
+    
             const portData = {};
             const portsSet = new Set();
             let allDates = [];
-
+    
             jsonSheet.forEach((row, index) => {
                 if (index === 0) return;
                 const time = row[2];
                 const hexData = row[6];
                 const port = row[5] || 1;
-
-                if (time && hexData) {
+    
+                if (time && typeof hexData === 'string') {
                     portsSet.add(port);
                     allDates.push(new Date(time));
-
+    
                     if (!portData[port]) {
                         portData[port] = {
                             labels: [],
@@ -76,18 +76,18 @@ function UploadConvert() {
                             previousForwardFlow: null
                         };
                     }
-
+    
                     const timestamp = new Date(time);
                     portData[port].labels.push(timestamp);
-
+    
                     const hexForwardFlow = hexData.substring(4, 12);
                     const currentForwardFlow = parseInt(hexForwardFlow, 16) / 10;
-
+    
                     let waterConsumptionValue = 0;
                     if (portData[port].previousForwardFlow !== null) {
                         waterConsumptionValue = (currentForwardFlow - portData[port].previousForwardFlow) * 10;
                     }
-
+    
                     portData[port].forwardFlow.push(currentForwardFlow);
                     portData[port].waterConsumption.push(waterConsumptionValue);
                     portData[port].table.push({
@@ -97,16 +97,16 @@ function UploadConvert() {
                         port: port,
                         batteryLevel: 3.65
                     });
-
+    
                     portData[port].previousForwardFlow = currentForwardFlow;
                 }
             });
-
+    
             const minDate = new Date(Math.min(...allDates));
             const maxDate = new Date(Math.max(...allDates));
             setStartDate(minDate.toISOString().split('T')[0]);
             setEndDate(maxDate.toISOString().split('T')[0]);
-
+    
             setAvailablePorts(Array.from(portsSet).map(port => ({ value: port, label: `Port ${port}` })));
             setTableData(portData);
             setShowTable(true);
@@ -116,6 +116,7 @@ function UploadConvert() {
         };
         reader.readAsArrayBuffer(selectedFile);
     };
+    
 
     const updateGraphData = (portData, port) => {
         const data = portData[port];
