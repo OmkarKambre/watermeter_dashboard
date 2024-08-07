@@ -241,7 +241,6 @@ function UploadConvert() {
                 dailySum += row.waterConsumption;
             } else {
                 consumptionSummary.push({ date: currentDate.toLocaleDateString(), dailyConsumption: dailySum+row.waterConsumption });
-                console.log(row.waterConsumption)
                 currentDate = new Date(rowDate.setHours(0, 0, 0, 0)); // Move to the new day
                 dailySum = 0; // Start new day's sum
             }
